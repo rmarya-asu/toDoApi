@@ -3,7 +3,20 @@ const jwt = require('jsonwebtoken');
 var msg = "I am number 3"
 var hash = SHA256(msg).toString();
 
-console.log(hash);
+const bcrypt = require('bcryptjs');
+
+var password = "123abc";
+bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.hash(password, salt, (err, hash) => {
+        console.log("bcrypt hash", hash);
+    })
+});
+
+var hashedpassword = "$2a$10$bVwbQet7LhJF33GgETv1XOIIg2N92cgD1E4PmVhVHMwaX3hA/CXrq";
+bcrypt.compare(password, hashedpassword, (err, result) => {
+    console.log(result);
+});
+
 
 var data = {
     id: 4,
