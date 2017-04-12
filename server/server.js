@@ -6,6 +6,7 @@ var { ObjectID } = require('mongodb');
 var { mongoose } = require('./db/mongoose');
 var { Todo } = require('./models/todo');
 var { User } = require('./models/user');
+var { authenticate } = require('./middleware/authenticate');
 const _ = require('lodash');
 
 var app = express();
@@ -117,8 +118,15 @@ app.post('/users', (req, res) => {
     });
 });
 
+
+
+//private routes
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
+
 app.listen(port, () => {
     console.log(`App started of port ${port}`);
-})
-
+});
 module.exports = { app };
