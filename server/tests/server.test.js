@@ -15,7 +15,9 @@ const todoData = [{
     },
     {
         _id: new ObjectID(),
-        text: "third test todo"
+        text: "third test todo",
+        completed: true,
+        completedAt: 333
     }
 ];
 //wipes the db with the remove call.
@@ -143,4 +145,44 @@ describe('DELETE /todos/:id', () => {
             .end(done);
 
     });
+});
+
+
+describe('PATCH /todos/:id', () => {
+    it('should update a todo', (done) => {
+        var text = "test update todo";
+        var hexId = todoData[2]._id.toHexString();
+        request(app)
+            .patch(`/todos/${hexId}`)
+            .send({
+                completed: true,
+                text
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(text);
+                expect(res.body.todo.completed).toBe(true);
+                expect(res.body.todo.completedAt).toBeA('number');
+            })
+            .end(done);
+    });
+
+    it('should clear completedAt when todo is not completed', (done) => {
+        var text = "test update todo !!!";
+        var hexId = todoData[1]._id.toHexString();
+        request(app)
+            .patch(`/todos/${hexId}`)
+            .send({
+                completed: false,
+                text
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(text);
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.completedAt).toNotExist();
+            })
+            .end(done);
+    });
+
 });
