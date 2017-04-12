@@ -1,3 +1,4 @@
+var config = require('./config/config');
 //This is the v2 of the server code... we will add express to do the routing.
 var express = require('express');
 var bodyParser = require('body-parser');
