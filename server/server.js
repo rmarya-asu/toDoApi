@@ -74,7 +74,7 @@ app.delete('/todos/:id', (req, res) => {
 //update routes
 app.patch('/todos/:id', (req, res) => {
     var id = req.params.id;
-    var body = _._.pick(req.body, ['text', 'completed']);
+    var body = _.pick(req.body, ['text', 'completed']);
     if (!ObjectID.isValid(id)) {
         res.status(404).send({
             error: 'id not valid'
@@ -96,6 +96,25 @@ app.patch('/todos/:id', (req, res) => {
         });
         done();
     }).catch((err) => res.status(400).send());
+});
+
+//user Routes
+app.post('/users', (req, res) => {
+    //User ->model methods , we are going to implement
+    //User.findByToken -> so that we can query the db based on auth tokens
+    //user -> instance (we are gonna generate tokens for individual - user.generateAuthToken)
+
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new User(body);
+
+    user.save().then(() => {
+        return user.generateAuthTokens();
+    }).then((token) => {
+        res.header('x-auth', token).send(user);
+    }, (e) => {
+        console.log(`ERRROR!! ${e}`);
+        res.status(400).send(e);
+    });
 });
 
 app.listen(port, () => {

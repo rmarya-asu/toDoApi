@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
-const jwt = require('jsonwebtoken');
-const _ = require('lodash');
 // our user model
 // {
 //     email: "ruthar@gmail.com",
@@ -13,7 +11,7 @@ const _ = require('lodash');
 // }
 
 //creating a mongoose schema, since we cannot add on methods on top of User model
-var UserSchema = mongoose.Schema({
+var User = mongoose.model('User', {
     email: {
         type: String,
         require: true,
@@ -47,22 +45,5 @@ var UserSchema = mongoose.Schema({
     }]
 
 });
-
-UserSchema.methods.toJSON = function() {
-    var user = this;
-    var userObject = user.toObject();
-    return _.pick(userObject, ['_id', 'email']);
-}
-UserSchema.methods.generateAuthTokens = function() {
-    //not using arrow keyword since it does not have access to the this keyword
-    var user = this;
-    var access = 'auth';
-    var token = jwt.sign({ _id: user._id.toHexString(), access }, 'abc123');
-    user.tokens.push({ access, token });
-    return user.save().then(() => {
-        return token;
-    });
-};
-var User = mongoose.model('User', UserSchema);
 
 module.exports = { User };
