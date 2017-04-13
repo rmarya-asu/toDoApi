@@ -54,7 +54,7 @@ UserSchema.methods.toJSON = function() {
     var userObject = user.toObject();
     return _.pick(userObject, ['_id', 'email']);
 }
-UserSchema.methods.generateAuthTokens = function() {
+UserSchema.methods.generateAuthToken = function() {
     //not using arrow keyword since it does not have access to the this keyword
     var user = this;
     var access = 'auth';
@@ -64,6 +64,17 @@ UserSchema.methods.generateAuthTokens = function() {
         return token;
     });
 };
+
+UserSchema.methods.removeToken = function(token) {
+    var user = this;
+
+    return user.update({
+        $pull: {
+            tokens: { token }
+        }
+    });
+};
+
 
 UserSchema.statics.findByToken = function(token) {
     var User = this;
@@ -88,6 +99,28 @@ UserSchema.statics.findByToken = function(token) {
         return user;
     })
 }
+
+UserSchema.statics.findByCredentials = function(email, password, callback) {
+    var User = this;
+    return User.findOne({ email }).then((user) => {
+        if (!user) {
+            return Promise.reject();
+        }
+        return new Promise((resolve, reject) => {
+            bcrypt.compare(password, user.password, (err, result) => {
+                if (result) {
+                    resolve(user);
+                } else {
+                    console.log("HERE2")
+                    reject();
+                }
+            })
+        })
+    })
+}
+
+
+
 
 UserSchema.pre('save', function(next) {
     var user = this;
